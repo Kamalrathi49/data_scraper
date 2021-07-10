@@ -1,10 +1,10 @@
-from os import link
 from typing import ItemsView
 import requests
 from bs4 import BeautifulSoup
-import pprint
 from requests.sessions import session
 import pandas as pd
+from tqdm import tqdm
+import csv
 
 res = requests.get("https://ep70.eventpilotadmin.com/web/page.php?page=Session&project=AAIC19&id=5172&filterUrn=urn%3Aeventpilot%3Aall%3Aagenda%3Afilter%3Acategoryid%3DClinical+%28neuropsychiatry+and+behavioral+neurology%29")
 soup = BeautifulSoup(res.text, "html.parser")
@@ -35,13 +35,17 @@ def scrapper(link):
     location = session_location.getText().split("\n")
     location, abstract = location[0] , location[1]
     abstract_text = data.select("div.mediatextwrapper h1.list_cell_title span")[0].getText()
-    session_title = data.select(".session_title")[0].getText()
-    scraped_data = {'session_title': session_title, 'session_date': session_date, "session_time": session_time, "session_author": session_author, 'authors_affiliation': authors_affiliation, 'category': category, 'sub_category': sub_category, 'location': location,'abstract_text': abstract_text, 'session_title':session_title }
+    session_abstract_title = data.select(".session_title")[0].getText()
+    scraped_data = {'#Abstract': abstract, 'Abstract Title': session_title, 'Date': session_date, "Time": session_time, 'Location': location, 'URL':link ,"Authors": session_author, "Author's Affiliations": authors_affiliation,'Abstract Text': abstract_text, 'Category': category, 'Sub-Category': sub_category, "Abstract Title": session_abstract_title  }
     return scraped_data
 
-for item in get_pages_link(links):
-    # print('--->',scrapper(item))
-    df = pd.DataFrame(data=scrapper(item), index=[0])
-    df = (df.T)
-    print (df)
-    df.to_excel('dict1.xlsx')
+final_scrapped_data = []
+for item in tqdm(get_pages_link(links)):
+    final_scrapped_data.append(scrapper(item))
+    
+field_names = ['#Abstract', 'Abstract Title', 'Date', 'Time', 'Location','URL', 'Authors', "Author's Affiliations", 'Abstract Text', 'Category', 'Sub-Category', 'Session Title']
+import io
+with io.open('data.csv', 'w', encoding="utf-8", newline="") as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames = field_names)
+    writer.writeheader()
+    writer.writerows(final_scrapped_data)
