@@ -8,7 +8,6 @@
 ## What Inside folder
 - main.py 
 - data.csv
-- screen shot folder
 - requirements.txt
 - get_started.pdf
 
