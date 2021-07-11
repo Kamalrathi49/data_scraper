@@ -4,7 +4,6 @@
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
-#### This is a Complete project in itself in which I used Django a python Framework with Bootsrap and jquary library..
 ## What Inside folder
 - main.py 
 - data.csv
